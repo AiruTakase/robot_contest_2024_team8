@@ -1,12 +1,12 @@
-#define R_DIN0 53
-#define R_DIN1 52
-#define R_DIN2 51
-#define R_VMana 7
+#define R_DIN0 53 //R 黄黒
+#define R_DIN1 52 //R オレンジ白
+#define R_DIN2 51 //R 赤白
+#define R_VMana 8 //R 紫
 
-#define L_DIN0 43
-#define L_DIN1 42
-#define L_DIN2 41
-#define L_VMana 5
+#define L_DIN0 43　//L 黄黒
+#define L_DIN1 42　//L オレンジ白
+#define L_DIN2 41　//L 赤白
+#define L_VMana 10　//L 紫
 
 int pw = 255;//回転速度をPWMで設定する（0-255で設定）
 
