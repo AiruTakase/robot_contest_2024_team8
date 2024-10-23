@@ -1,9 +1,9 @@
-#超音波センサーを２つ使うプログラム
+#２つの超音波センサーから距離をとるプログラムです
 
-#define tri_1 12 //triの値を2と定義
-#define echo_1 11 //echoの値を3と定義
-#define tri_2 2
-#define echo_2 3
+#define tri_1 22 //triの値を2と定義
+#define echo_1 23 //echoの値を3と定義
+#define tri_2 30
+#define echo_2 31
 
 int duration_1 = 0; //超音波を出してから、跳ね返ってくるまでの時間を格納する変数
 double dist_1 = 0; //durationから求めた距離を格納する変数
@@ -41,8 +41,7 @@ void loop() {
   dist_1 = 0.5*340.0*(duration_1/1000000.0);
   dist_2 = 0.5*340.0*(duration_2/1000000.0); //音速と時間（duration）から距離をメートル単位で計算し、distに代入する。
 
-
-  Serial.println(dist_1); //距離をシリアルモニタに表示し、改行する。
+  Serial.println(dist_2); //距離をシリアルモニタに表示し、改行する。
   
   delay(100); //100ミリ秒間プログラムを停止する。
 }
