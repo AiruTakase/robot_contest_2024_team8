@@ -1,0 +1,27 @@
+#include <Stepper.h>
+
+const int stepsPerRevolution = 800; 
+
+
+const int motorPin1 = 2;
+const int motorPin2 = 3;
+const int motorPin3 = 4;
+const int motorPin4 = 5;
+
+
+Stepper myStepper(stepsPerRevolution, motorPin1, motorPin2, motorPin3, motorPin4);
+
+void setup() {
+
+  myStepper.setSpeed(60); 
+}
+
+void loop() {
+
+  myStepper.step(stepsPerRevolution); 
+  delay(2000); 
+  
+  
+  myStepper.step(-stepsPerRevolution); 
+  delay(2000); 
+}
