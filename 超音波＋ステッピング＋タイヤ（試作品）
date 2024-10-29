@@ -1,0 +1,138 @@
+#include <Stepper.h>
+
+const int stepsPerRevolution = 800;
+
+const int motorPin1 = 2;
+const int motorPin2 = 3;
+const int motorPin3 = 4;
+const int motorPin4 = 5;
+// 超音波
+#define echoPin1 23
+#define trigPin1 22
+#define echoPin2 31
+#define trigPin2 30
+
+// タイヤ
+#define R_DIN0 53 // R 黄黒
+#define R_DIN1 52 // R オレンジ白
+#define R_DIN2 51 // R 赤白
+#define R_VMana 8 // R 紫
+#define L_DIN0 43 // L 黄黒
+#define L_DIN1 42 // L オレンジ白
+#define L_DIN2 41 // L 赤白
+#define L_VMana 10 // L 紫
+
+int maximumRange = 300;
+int minimumRange = 0;
+long duration1, distance1;
+long duration2, distance2;
+int triger_count1 = 0;
+int pw = 255;
+bool spinning = false; // タイヤが回転しているかのフラグ
+
+Stepper myStepper(stepsPerRevolution, motorPin1, motorPin2, motorPin3, motorPin4);
+
+void setup() {
+  myStepper.setSpeed(60);
+  Serial.begin(9600);
+
+  // 超音波
+  pinMode(trigPin1, OUTPUT);
+  pinMode(echoPin1, INPUT);
+  pinMode(trigPin2, OUTPUT);
+  pinMode(echoPin2, INPUT);
+
+  // タイヤ
+  pinMode(R_DIN0, OUTPUT);
+  pinMode(R_DIN1, OUTPUT);
+  pinMode(R_DIN2, OUTPUT);
+  pinMode(R_VMana, OUTPUT);
+  digitalWrite(R_DIN0, HIGH);
+  digitalWrite(R_DIN1, HIGH);
+  digitalWrite(R_DIN2, HIGH);
+
+  pinMode(L_DIN0, OUTPUT);
+  pinMode(L_DIN1, OUTPUT);
+  pinMode(L_DIN2, OUTPUT);
+  pinMode(L_VMana, OUTPUT);
+  digitalWrite(L_DIN0, HIGH);
+  digitalWrite(L_DIN1, HIGH);
+  digitalWrite(L_DIN2, LOW);
+}
+
+void loop() {
+  // シリアルからの入力を待つ
+  if (!spinning && Serial.available()) {
+    spinning = true;
+    digitalWrite(R_DIN0, LOW);
+    digitalWrite(R_DIN1, LOW);
+    analogWrite(R_VMana, pw);
+
+    digitalWrite(L_DIN0, LOW);
+    digitalWrite(L_DIN1, LOW);
+    analogWrite(L_VMana, pw);
+
+    Serial.println("SPINNING!");
+  }
+
+  // タイヤが回転している場合の処理
+  if (spinning) {
+    // 超音波測定
+    digitalWrite(trigPin1, LOW);
+    delayMicroseconds(2);
+    digitalWrite(trigPin1, HIGH);
+    delayMicroseconds(10);
+    digitalWrite(trigPin1, LOW);
+    duration1 = pulseIn(echoPin1, HIGH);
+    distance1 = duration1 / 58.2;
+
+    digitalWrite(trigPin2, LOW);
+    delayMicroseconds(2);
+    digitalWrite(trigPin2, HIGH);
+    delayMicroseconds(10);
+    digitalWrite(trigPin2, LOW);
+    duration2 = pulseIn(echoPin2, HIGH);
+    distance2 = duration2 / 58.2;
+
+    // センサーの条件判定
+    if (distance1 >= 10 && distance1 <= 30) {
+      triger_count1++;
+      delay(1000);
+    } else if (distance1 > 0 && distance1 < 5.0) {
+      myStepper.step(-stepsPerRevolution);
+      delay(1000);
+    }
+
+    // タイヤ停止条件
+    if (triger_count1 == 3) {
+      // タイヤの回転を停止
+      digitalWrite(R_DIN0, LOW);
+      digitalWrite(R_DIN1, LOW);
+      digitalWrite(R_DIN2, LOW);
+      analogWrite(R_VMana, 0);
+
+      digitalWrite(L_DIN0, LOW);
+      digitalWrite(L_DIN1, LOW);
+      digitalWrite(L_DIN2, HIGH);
+      analogWrite(L_VMana, 0);
+
+      // ステッピングモーターの動作
+      myStepper.step(stepsPerRevolution);
+      delay(1000);
+      triger_count1 = 0;
+      spinning = false; // 回転を停止したのでフラグをリセット
+      Serial.println("停止しました");
+    }
+
+    // 距離をシリアルモニタに表示
+    if (distance1 >= maximumRange || distance1 <= minimumRange) {
+      Serial.println("Sensor 1: -1");
+    } else {
+      Serial.print("Sensor 1: ");
+      Serial.print(distance1);
+      Serial.println(" cm");
+    }
+  }
+
+  delay(100); // センサーの読み取り速度を調整
+}
