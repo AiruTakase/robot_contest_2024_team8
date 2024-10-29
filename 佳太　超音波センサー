@@ -1,0 +1,59 @@
+#define echoPin1 23
+#define trigPin1 22 
+#define echoPin2 31
+#define trigPin2 30
+
+int maximumRange = 300; 
+int minimumRange = 0; 
+long duration1, distance1; 
+long duration2, distance2;
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(trigPin1, OUTPUT);
+  pinMode(echoPin1, INPUT);
+  pinMode(trigPin2, OUTPUT);
+  pinMode(echoPin2, INPUT);
+}
+
+void loop() {
+  
+  digitalWrite(trigPin1, LOW); 
+  delayMicroseconds(2); 
+  digitalWrite(trigPin1, HIGH);
+  delayMicroseconds(10); 
+  digitalWrite(trigPin1, LOW);
+
+  duration1 = pulseIn(echoPin1, HIGH);
+  distance1 = duration1 / 58.2;
+
+  
+  digitalWrite(trigPin2, LOW); 
+  delayMicroseconds(2); 
+  digitalWrite(trigPin2, HIGH);
+  delayMicroseconds(10); 
+  digitalWrite(trigPin2, LOW);
+
+  duration2 = pulseIn(echoPin2, HIGH);
+  distance2 = duration2 / 58.2;
+
+  
+  if (distance1 >= maximumRange || distance1 <= minimumRange) {
+    Serial.print("Sensor 1: -1\n");
+  } else {
+    Serial.print("Sensor 1: ");
+    Serial.print(distance1);
+    Serial.print(" cm\n");
+  }
+
+  
+  if (distance2 >= maximumRange || distance2 <= minimumRange) {
+    Serial.print("Sensor 2: -1\n");
+  } else {
+    Serial.print("Sensor 2: ");
+    Serial.print(distance2);
+    Serial.print(" cm\n");
+  }
+
+  delay(500); 
+}
