@@ -1,0 +1,29 @@
+/*
+フォトリフレクタ　右からA1、A2、A3
+*/
+
+
+void setup() {
+  Serial.begin(9600);
+}
+ 
+void loop() {  
+  int val_1 = analogRead(A1);
+  int val_2 = analogRead(A2);
+  int val_3 = analogRead(A3);
+
+ 
+
+
+  Serial.print(val_1);
+  Serial.print("val_1. ");
+  Serial.print(val_2);
+  Serial.print("val_2. ");
+  Serial.print(val_3);
+  Serial.print("val_3. ");
+  Serial.println("");
+
+
+  delay(50);
+}
+ 
