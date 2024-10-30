@@ -13,14 +13,14 @@ const int motorPin4 = 5;
 #define trigPin2 30
 
 // タイヤ
-#define R_DIN0 53 // R 黄黒
-#define R_DIN1 52 // R オレンジ白
-#define R_DIN2 51 // R 赤白
-#define R_VMana 8 // R 紫
-#define L_DIN0 43 // L 黄黒
-#define L_DIN1 42 // L オレンジ白
-#define L_DIN2 41 // L 赤白
-#define L_VMana 10 // L 紫
+#define R_DIN0 44 // R 黄黒
+#define R_DIN1 43 // R オレンジ白
+#define R_DIN2 42 // R 赤白
+#define R_VMana 45 // R 紫
+#define L_DIN0 36 // L 黄黒
+#define L_DIN1 35 // L オレンジ白
+#define L_DIN2 34 // L 赤白
+#define L_VMana 37 // L 紫
 
 int maximumRange = 300;
 int minimumRange = 0;
