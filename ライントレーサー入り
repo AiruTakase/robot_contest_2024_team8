@@ -1,0 +1,128 @@
+#define R_DIN2 8
+#define R_DIN1 7
+#define R_DIN0 6 
+#define R_VMana 5
+
+#define L_DIN2 4
+#define L_DIN1 3
+#define L_DIN0 2  
+#define L_VMana 1
+
+const int numReadings = 5;  
+int readings1[numReadings]; 
+int readings2[numReadings]; 
+int readings3[numReadings];
+int index = 0; 
+int total1 = 0, total2 = 0, total3 = 0; 
+
+int basepw_r = 100; 
+int basepw_l = 100; 
+
+int late_pr = 30; 
+int late_pl = 30; 
+
+int threshold = 200; 
+bool lastTurnRight = false; 
+
+void setup() {
+    Serial.begin(9600);
+
+
+    pinMode(R_DIN0, OUTPUT);
+    pinMode(R_DIN1, OUTPUT);
+    pinMode(R_DIN2, OUTPUT);
+    pinMode(R_VMana, OUTPUT);
+    pinMode(L_DIN0, OUTPUT);
+    pinMode(L_DIN1, OUTPUT);
+    pinMode(L_DIN2, OUTPUT);
+    pinMode(L_VMana, OUTPUT);
+
+   
+    digitalWrite(R_DIN0, HIGH);
+    digitalWrite(R_DIN1, HIGH);
+    digitalWrite(R_DIN2, HIGH);
+    digitalWrite(L_DIN0, HIGH);
+    digitalWrite(L_DIN1, HIGH);
+    digitalWrite(L_DIN2, LOW);
+
+    
+    for (int i = 0; i < numReadings; i++) {
+        readings1[i] = 0;
+        readings2[i] = 0;
+        readings3[i] = 0;
+    }
+
+    delay(5000); 
+}
+
+void loop() {
+   
+    while (!Serial.available()); 
+
+    
+    int val_1 = analogRead(A1);
+    int val_2 = analogRead(A2);
+    int val_3 = analogRead(A3);
+
+    
+    total1 -= readings1[index];
+    total2 -= readings2[index];
+    total3 -= readings3[index];
+
+    readings1[index] = val_1;
+    readings2[index] = val_2;
+    readings3[index] = val_3;
+
+    total1 += readings1[index];
+    total2 += readings2[index];
+    total3 += readings3[index];
+
+    index = (index + 1) % numReadings; 
+
+    
+    int avg_val_1 = total1 / numReadings;
+    int avg_val_2 = total2 / numReadings;
+    int avg_val_3 = total3 / numReadings;
+
+    
+    if (avg_val_2 > threshold) { 
+        Serial.println("前進します");
+        moveForward(basepw_r, basepw_l);
+    } else if (avg_val_1 > threshold) {
+        Serial.println("右に曲がります");
+        moveForward(basepw_r, late_pl);
+        lastTurnRight = true;
+    } else if (avg_val_3 > threshold) { 
+        Serial.println("左に曲がります");
+        moveForward(late_pr, basepw_l);
+        lastTurnRight = false;
+    } else { 
+        if (lastTurnRight) {
+            Serial.println("ラインを失いました、左に曲がって探します");
+            moveForward(0, basepw_l);
+        } else {
+            Serial.println("ラインを失いました、右に曲がって探します");
+            moveForward(basepw_r, 0);
+        }
+    }
+
+    delay(50); 
+}
+
+void moveForward(int rightSpeed, int leftSpeed) {
+    digitalWrite(R_DIN0, LOW);
+    digitalWrite(R_DIN1, LOW);
+    analogWrite(R_VMana, rightSpeed);
+
+    digitalWrite(L_DIN0, LOW);
+    digitalWrite(L_DIN1, LOW);
+    analogWrite(L_VMana, leftSpeed);
+}
+
+
+void stopMotors() {
+    digitalWrite(R_DIN0, HIGH);
+    digitalWrite(R_DIN1, HIGH);
+    digitalWrite(L_DIN0, HIGH);
+    digitalWrite(L_DIN1, HIGH);
+}
