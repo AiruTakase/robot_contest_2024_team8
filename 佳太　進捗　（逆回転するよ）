@@ -12,6 +12,7 @@ const int LmotorPin2 = 26;
 const int LmotorPin3 = 27;
 const int LmotorPin4 = 28;
 
+
 Stepper myStepper1(stepsPerRevolution, RmotorPin1, RmotorPin2, RmotorPin3, RmotorPin4);
 Stepper myStepper2(stepsPerRevolution, LmotorPin1, LmotorPin2, LmotorPin3, LmotorPin4);
 
@@ -21,9 +22,15 @@ void setup() {
 }
 
 void loop() {
-  myStepper1.step(stepsPerRevolution); 
-  myStepper2.step(stepsPerRevolution); 
   
-  myStepper1.step(-stepsPerRevolution); 
-  myStepper2.step(-stepsPerRevolution);  
+  for (int i = 0; i < 100; i = i+4) {
+    myStepper1.step(1); 
+    myStepper2.step(1); 
+  }
+
+  
+  for (int i = 0; i < 100; i= i+4) {
+    myStepper1.step(1); 
+    myStepper2.step(1); 
+  }
 }
