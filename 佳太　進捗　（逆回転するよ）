@@ -2,12 +2,10 @@
 
 const int stepsPerRevolution = 800; 
 
-
-#define echoPin1 23
-#define trigPin1 22
-#define echoPin2 31
-#define trigPin2 30
-
+const int motorPin1 = 29;
+const int motorPin2 = 26;
+const int motorPin3 = 27;
+const int motorPin4 = 28;
 
 Stepper myStepper(stepsPerRevolution, motorPin1, motorPin2, motorPin3, motorPin4);
 
