@@ -1,0 +1,142 @@
+//main
+void setup() {
+  Serial.begin(9600);
+  delay(1000);
+  Serial.println("start");
+}
+
+void loop() {
+  int f = 0;
+  Serial.println(usc());
+  if(usc() <= 30){
+    stop(10000);
+  }else{
+    movef();
+  }
+} 
+
+
+int usc() {
+  int f = 0;
+  #define echoPin 36
+  #define trigPin 35
+  int maximumRange = 30; 
+  int minimumRange = 0; 
+  long duration, distance; 
+  Serial.begin(9600);
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
+  digitalWrite(trigPin, LOW); 
+  delayMicroseconds(2); 
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10); 
+  digitalWrite(trigPin, LOW);
+
+  duration = pulseIn(echoPin, HIGH);
+  distance = duration / 58.2;
+  Serial.println(distance);
+  
+  // if (distance <= maximumRange) {
+  //   int f = 1;
+  //   Serial.println("f = 1");
+  // }
+  return distance;
+    //Serial.print(distance);
+    //Serial.print(" cm\n");
+}
+///////////////
+int moveb() {
+  #define L_DIN0 2 //R 黄黒
+  #define L_DIN1 3 //R オレンジ白
+  #define L_DIN2 4 //R 赤白
+  #define L_VMana 1 //R 紫
+
+  #define R_DIN0 6 //L 黄黒
+  #define R_DIN1 7 //L オレンジ白
+  #define R_DIN2 8//L 赤白
+  #define R_VMana 5 //L 紫
+
+  int pw = 255;//回転速度をPWMで設定する（0-255で設定）
+  int dt = 10;//時間間隔
+  //int st = 100;
+  
+  pinMode(R_DIN0, OUTPUT);
+  pinMode(R_DIN1, OUTPUT);
+  pinMode(R_DIN2, OUTPUT);
+  digitalWrite(R_DIN0,HIGH);
+  digitalWrite(R_DIN1,HIGH);
+  digitalWrite(R_DIN2,HIGH);
+
+  pinMode(L_DIN0, OUTPUT);
+  pinMode(L_DIN1, OUTPUT);
+  pinMode(L_DIN2, OUTPUT);
+  digitalWrite(L_DIN0,HIGH);
+  digitalWrite(L_DIN1,HIGH);
+  digitalWrite(L_DIN2,LOW);
+}
+
+
+int movef(){
+  int pw = 255;//回転速度をPWMで設定する（0-255で設定）
+  int dt = 10;//時間間隔
+  int st = 10000;
+  moveb();
+  Serial.println("move forward");
+  for(int i = 0; i<50; i++){
+    digitalWrite(R_DIN0,LOW);
+    digitalWrite(R_DIN1,LOW);
+    analogWrite(R_VMana,pw);
+    digitalWrite(L_DIN0,LOW);
+    digitalWrite(L_DIN1,LOW);
+    analogWrite(L_VMana,pw);
+    delay(dt);
+    //stop();
+  }
+}
+/*
+void movel(){
+  moveb();
+  Serial.println("move left");
+  for(int i = 0; i<50; i++){
+    digitalWrite(R_DIN2,HIGH);
+    digitalWrite(R_DIN0,LOW);
+    digitalWrite(R_DIN1,LOW);
+    analogWrite(R_VMana,pw);
+    digitalWrite(L_DIN0,HIGH);
+    digitalWrite(L_DIN1,HIGH);
+    analogWrite(L_VMana,pw);
+    delay(dt);
+  }
+}
+void mover(){
+  moveb();
+  Serial.println("move right");
+  for(int i = 0; i<50; i++){
+    digitalWrite(R_DIN0,HIGH);
+    digitalWrite(R_DIN1,HIGH);
+    analogWrite(R_VMana,pw);
+    digitalWrite(L_DIN0,LOW);
+    digitalWrite(L_DIN1,LOW);
+    analogWrite(L_VMana,pw);
+    delay(dt);
+  }
+}
+*/
+int stop(int st){
+  moveb();
+  Serial.println("stop");
+  digitalWrite(R_DIN0,HIGH);
+  digitalWrite(R_DIN1,HIGH);
+  //analogWrite(R_VMana,pw);
+  digitalWrite(L_DIN0,HIGH);
+  digitalWrite(L_DIN1,HIGH);
+  //analogWrite(L_VMana,pw);
+  delay(st);
+}//for文でスピードをコントロールしてみる
+
+
+
+
+
+
+
