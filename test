@@ -1,15 +1,16 @@
 //main
 void setup() {
   Serial.begin(9600);
-  delay(1000);
+  delay(5000);
   Serial.println("start");
 }
 
 void loop() {
-  int f = 0;
-  Serial.println(usc());
+  //int f = 0;
+  //Serial.println(usc());
   if(usc() <= 30){
-    stop(10000);
+    stop(1000);
+    //Serial.println(usc());
   }else{
     movef();
   }
@@ -34,6 +35,7 @@ int usc() {
 
   duration = pulseIn(echoPin, HIGH);
   distance = duration / 58.2;
+  Serial.print("distance: ");
   Serial.println(distance);
   
   // if (distance <= maximumRange) {
@@ -133,7 +135,6 @@ int stop(int st){
   //analogWrite(L_VMana,pw);
   delay(st);
 }//for文でスピードをコントロールしてみる
-
 
 
 
