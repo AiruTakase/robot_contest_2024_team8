@@ -1,0 +1,97 @@
+//for文でスピードをコントロールしてみる
+
+#define L_DIN0 2 //R 黄黒
+#define L_DIN1 3 //R オレンジ白
+#define L_DIN2 4 //R 赤白
+#define L_VMana 1 //R 紫
+
+#define R_DIN0 6 //L 黄黒
+#define R_DIN1 7 //L オレンジ白
+#define R_DIN2 8//L 赤白
+#define R_VMana 5 //L 紫
+
+int pw = 255;//回転速度をPWMで設定する（0-255で設定）
+int dt = 10;//時間間隔
+int st = 100;
+
+void setup() {
+  Serial.begin(9600);
+  
+  pinMode(R_DIN0, OUTPUT);
+  pinMode(R_DIN1, OUTPUT);
+  pinMode(R_DIN2, OUTPUT);
+  digitalWrite(R_DIN0,HIGH);
+  digitalWrite(R_DIN1,HIGH);
+  digitalWrite(R_DIN2,HIGH);
+
+  pinMode(L_DIN0, OUTPUT);
+  pinMode(L_DIN1, OUTPUT);
+  pinMode(L_DIN2, OUTPUT);
+  digitalWrite(L_DIN0,HIGH);
+  digitalWrite(L_DIN1,HIGH);
+  digitalWrite(L_DIN2,LOW);
+  delay(5000);
+  Serial.print("start");
+}
+
+void loop() {
+  movef();
+  stop(st);
+  movel();
+  stop(st);
+  movef();
+  stop(st);
+  mover();
+  stop(st);
+} 
+
+
+
+void movef(){
+  Serial.println("move forward");
+  for(int i = 0; i<50; i++){
+    digitalWrite(R_DIN0,LOW);
+    digitalWrite(R_DIN1,LOW);
+    analogWrite(R_VMana,pw);
+    digitalWrite(L_DIN0,LOW);
+    digitalWrite(L_DIN1,LOW);
+    analogWrite(L_VMana,pw);
+    delay(dt);
+    //stop();
+  }
+}
+void movel(){
+  Serial.println("move left");
+  for(int i = 0; i<50; i++){
+    digitalWrite(R_DIN2,HIGH);
+    digitalWrite(R_DIN0,LOW);
+    digitalWrite(R_DIN1,LOW);
+    analogWrite(R_VMana,pw);
+    digitalWrite(L_DIN0,HIGH);
+    digitalWrite(L_DIN1,HIGH);
+    analogWrite(L_VMana,pw);
+    delay(dt);
+  }
+}
+void mover(){
+  Serial.println("move right");
+  for(int i = 0; i<50; i++){
+    digitalWrite(R_DIN0,HIGH);
+    digitalWrite(R_DIN1,HIGH);
+    analogWrite(R_VMana,pw);
+    digitalWrite(L_DIN0,LOW);
+    digitalWrite(L_DIN1,LOW);
+    analogWrite(L_VMana,pw);
+    delay(dt);
+  }
+}
+
+void stop(int st){
+  digitalWrite(R_DIN0,HIGH);
+  digitalWrite(R_DIN1,HIGH);
+  //analogWrite(R_VMana,pw);
+  digitalWrite(L_DIN0,HIGH);
+  digitalWrite(L_DIN1,HIGH);
+  //analogWrite(L_VMana,pw);
+  delay(st);
+}
