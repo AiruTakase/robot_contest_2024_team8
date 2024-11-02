@@ -1,17 +1,21 @@
 #include <Stepper.h>
 
-const int stepsPerRevolution = 800;
+const int stepsPerRevolution = 400;
 
-// ステッピングモーター
-const int motorPin1 = 29;
-const int motorPin2 = 26;
-const int motorPin3 = 27;
-const int motorPin4 = 28;
+const int RmotorPin1 = 51;
+const int RmotorPin2 = 41;
+const int RmotorPin3 = 50;
+const int RmotorPin4 = 53;
+
+const int LmotorPin1 = 29;
+const int LmotorPin2 = 26;
+const int LmotorPin3 = 27;
+const int LmotorPin4 = 28;
 
 // DCモーター(仮)
-const int DCMotorPin1 = 9;
-const int DCMotorPin2 = 10;
-const int enablePin = 3;
+const int ENA = 9; // PWM
+const int IN1 = 3;
+const int IN2 = 4;
 
 // 超音波センサー
 #define echoPin1 23 // 前方センサー
@@ -20,14 +24,19 @@ const int enablePin = 3;
 #define trigPin2 30
 
 // タイヤ
-#define R_DIN0 44 // R 黄黒
-#define R_DIN1 43 // R オレンジ白
-#define R_DIN2 42 // R 赤白
-#define R_VMana 45 // R 紫
-#define L_DIN0 36 // L 黄黒
-#define L_DIN1 35 // L オレンジ白
-#define L_DIN2 34 // L 赤白
-#define L_VMana 37 // L 紫
+#define R_DIN0 6 // R 黄黒
+#define R_DIN1 7 // R オレンジ白
+#define R_DIN2 8 // R 赤白
+#define R_VMana 5 // R 紫
+#define L_DIN0 2 // L 黄黒
+#define L_DIN1 3 // L オレンジ白
+#define L_DIN2 4 // L 赤白
+#define L_VMana 1 // L 紫
+
+// タッチセンサー
+#define touch_sensor_lift 2
+#define touch_sensor_front1 3
+#define touch_sensor_front2 5 // 修正点
 
 int maximumRange = 300;
 int minimumRange = 0;
@@ -35,13 +44,16 @@ long duration1, distance1;
 long duration2, distance2;
 int triger_count1 = 0;
 int pw = 255;
-bool spinning = false; 
-bool initialInputReceived = false; 
+bool spinning = false;
 
-Stepper myStepper(stepsPerRevolution, motorPin1, motorPin2, motorPin3, motorPin4);
+int step = 5;
+
+Stepper myStepper1(stepsPerRevolution, RmotorPin1, RmotorPin2, RmotorPin3, RmotorPin4);
+Stepper myStepper2(stepsPerRevolution, LmotorPin1, LmotorPin2, LmotorPin3, LmotorPin4);
 
 void setup() {
-  myStepper.setSpeed(60);
+  myStepper1.setSpeed(60);
+  myStepper2.setSpeed(60);
   Serial.begin(9600);
 
   // 超音波
@@ -66,22 +78,16 @@ void setup() {
   digitalWrite(L_DIN0, HIGH);
   digitalWrite(L_DIN1, HIGH);
   digitalWrite(L_DIN2, LOW);
+  delay(5000);
 
   // DCモーター
-  pinMode(DCMotorPin1, OUTPUT);
-  pinMode(DCMotorPin2, OUTPUT);
-  pinMode(enablePin, OUTPUT);
+  pinMode(IN1, OUTPUT);
+  pinMode(IN2, OUTPUT);
+  pinMode(ENA, OUTPUT);
 }
 
 void loop() {
- 
-  if (!initialInputReceived && Serial.available()) {
-    initialInputReceived = true;
-    Serial.println("初期入力が検出されました。");
-    return;
-  }
-  
-  if (initialInputReceived && !spinning && Serial.available()) {
+  if (!spinning) {
     spinning = true;
     digitalWrite(R_DIN0, LOW);
     digitalWrite(R_DIN1, LOW);
@@ -111,69 +117,90 @@ void loop() {
     digitalWrite(trigPin2, LOW);
     duration2 = pulseIn(echoPin2, HIGH);
     distance2 = duration2 / 58.2;
+  }
 
-    // 後方センサーの距離を確認
-    if (distance2 > 0 && distance2 < 10) { 
-      Serial.println("後方センサーが反応しました。モーターを停止します。");
-      digitalWrite(R_DIN0, LOW);
-      digitalWrite(R_DIN1, LOW);
-      digitalWrite(R_DIN2, LOW);
-      analogWrite(R_VMana, 0);
-
-      digitalWrite(L_DIN0, LOW);
-      digitalWrite(L_DIN1, LOW);
-      digitalWrite(L_DIN2, HIGH);
-      analogWrite(L_VMana, 0);
-
-      // DCモ-ターを上に動かす
-      digitalWrite(DCMotorPin1, HIGH);
-      digitalWrite(DCMotorPin2, HIGH);
-      delay(1000);
-
-      return; 
-    }
-
-    // タイヤの動作を続ける
-    if (distance1 >= 10 && distance1 <= 30) {
-      triger_count1++;
-      delay(1000);
-    } else if (distance1 > 0 && distance1 < 5.0) {
-      myStepper.step(-stepsPerRevolution);
-      delay(1000);
-    }
-
-    if (triger_count1 == 3) {
-      digitalWrite(R_DIN0, LOW);
-      digitalWrite(R_DIN1, LOW);
-      digitalWrite(R_DIN2, LOW);
-      analogWrite(R_VMana, 0);
-
-      digitalWrite(L_DIN0, LOW);
-      digitalWrite(L_DIN1, LOW);
-      digitalWrite(L_DIN2, HIGH);
-      analogWrite(L_VMana, 0);
-
-      // ステッピングモーター
-      myStepper.step(stepsPerRevolution);
-      delay(1000);
-      triger_count1 = 0;
-      spinning = false;
-
-      // DCモーターを動かす
-      digitalWrite(DCMotorPin1, HIGH);
-      digitalWrite(DCMotorPin2, HIGH);
-      delay(1500);
-    }
-
-    // 前方センサーの距離を表示
-    if (distance1 >= maximumRange || distance1 <= minimumRange) {
-      Serial.println("Sensor 1: -1");
-    } else {
-      Serial.print("Sensor 1: ");
-      Serial.print(distance1);
-      Serial.println(" cm");
+  // タイヤの動作を続ける
+  if (distance1 >= 10 && distance1 <= 30) {
+    triger_count1++;
+    delay(1000);
+  } else if (distance1 > 0 && distance1 < 5.0) {
+    for (int i = 0; i < 100; i += 4) {
+      myStepper1.step(-4);
+      delay(5);
+      myStepper2.step(-4);
+      delay(5);
     }
   }
 
-  delay(100);
+  if (triger_count1 == 3) {
+    digitalWrite(R_DIN0, LOW);
+    digitalWrite(R_DIN1, LOW);
+    digitalWrite(R_DIN2, LOW);
+    analogWrite(R_VMana, 0);
+
+    digitalWrite(L_DIN0, LOW);
+    digitalWrite(L_DIN1, LOW);
+    digitalWrite(L_DIN2, HIGH);
+    analogWrite(L_VMana, 0);
+
+    // ステッピングモーター
+    for (int i = 0; i < 100; i += 4) {
+      myStepper1.step(4);
+      myStepper2.step(4);
+    }
+    triger_count1 = 0;
+    spinning = false;
+
+    for (int i = 0; i <= 100; i += step) {  // PWM制御でモーター回転速度を変える
+      analogWrite(ENA, i);
+      delay(50);
+    }
+    analogWrite(ENA, 0);
+  }
+
+  // タッチセンサーの状態をチェック
+  if (digitalRead(touch_sensor_front1) == LOW || digitalRead(touch_sensor_front2) == LOW) { // 修正点
+    digitalWrite(IN1, HIGH);
+    digitalWrite(IN2, LOW);
+    for (int i = 0; i <= 255; i += step) {
+      analogWrite(ENA, i);
+      delay(3000);
+    }
+
+    digitalWrite(R_DIN0, LOW);
+    digitalWrite(R_DIN1, LOW);
+    digitalWrite(R_DIN2, HIGH);
+    analogWrite(R_VMana, 255);
+
+    digitalWrite(L_DIN0, LOW);
+    digitalWrite(L_DIN1, LOW);
+    digitalWrite(L_DIN2, LOW);
+    analogWrite(L_VMana, 255);
+  }
+
+  if (digitalRead(touch_sensor_lift) == LOW) {
+    analogWrite(ENA, 0);
+    digitalWrite(IN1, LOW);
+    digitalWrite(IN2, HIGH);
+    for (int i = 0; i <= 255; i += step) {
+      analogWrite(ENA, i);
+      delay(1000);
+    }
+  }
+
+  // 前方センサーの距離を表示
+  if (distance1 >= maximumRange || distance1 <= minimumRange) {
+    Serial.println("-1");
+  } else {
+    Serial.print("Distance1: ");
+    Serial.println(distance1);
+  }
+
+  // 後方センサーの距離を表示
+  if (distance2 >= maximumRange || distance2 <= minimumRange) {
+    Serial.println("-1");
+  } else {
+    Serial.print("Distance2: ");
+    Serial.println(distance2);
+  }
 }
