@@ -1,0 +1,23 @@
+//ピン番号は後で変更します
+//マイクロスイッチ　valueが0でスイッチが反応している
+//touch_sensor_lift：リフトを止める
+//touch_sensor_front：ゴールを検知する
+#define touch_sensor_lift 2
+#define touch_sensor_front 3
+
+void setup() {
+  Serial.begin(9600);
+  Serial.print("start");
+  pinMode(touch_sensor_lift,INPUT_PULLUP);
+  pinMode(touch_sensor_front, INPUT_PULLUP);
+
+}
+
+void loop() {  
+  int sensor_lift_value = digitalRead(touch_sensor_lift);
+  int sensor_front_value = digitalRead(touch_sensor_front);
+
+  Serial.print(sensor_lift_value);//
+  Serial.println(sensor_front_value);
+  delay(200);
+}
