@@ -1,5 +1,5 @@
 //ピン番号は後で変更します
-//マイクロスイッチ　valueが0でスイッチが反応している
+//マイクロスイッチ　valueが1でスイッチが反応している
 //touch_sensor_lift：リフトを止める
 //touch_sensor_front：ゴールを検知する
 #define touch_sensor_lift 2
