@@ -43,7 +43,7 @@ int minimumRange = 0;
 long duration1, distance1;
 long duration2, distance2;
 int triger_count1 = 0;
-int pw = 255;
+int pw = 100;
 bool spinning = false;
 
 int step = 5;
@@ -109,6 +109,7 @@ void loop() {
     digitalWrite(trigPin1, LOW);
     duration1 = pulseIn(echoPin1, HIGH);
     distance1 = duration1 / 58.2;
+    Serial.println(distance1);
 
     digitalWrite(trigPin2, LOW);
     delayMicroseconds(2);
@@ -132,7 +133,7 @@ void loop() {
     }
   }
 
-  if (triger_count1 == 3) {
+  if (triger_count1 == 1) {
     digitalWrite(R_DIN0, LOW);
     digitalWrite(R_DIN1, LOW);
     digitalWrite(R_DIN2, LOW);
