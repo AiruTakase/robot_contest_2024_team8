@@ -1,0 +1,19 @@
+int moveback(){
+  int pw = 255;//回転速度をPWMで設定する（0-255で設定）
+  int dt = 10;//時間間隔
+  int st = 10000;
+  moveb();
+  Serial.println("move back");
+  for(int i = 0; i<50; i++){
+    digitalWrite(R_DIN0,LOW);
+    digitalWrite(R_DIN1,LOW);
+    digitalWrite(R_DIN2,LOW);
+    analogWrite(R_VMana,pw);
+    digitalWrite(L_DIN0,LOW);
+    digitalWrite(L_DIN1,LOW);
+    digitalWrite(L_DIN2,HIGH);
+    analogWrite(L_VMana,pw);
+    delay(dt);
+    //stop();
+  }
+}
